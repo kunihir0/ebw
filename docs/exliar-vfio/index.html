@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exliar VFIO Automation Framework</title>
+  <style>
+    :root {
+      --bg-color: #e0e5ec;
+      --text-color: #333;
+      --accent-color: #6d5dfc;
+      --accent-light: #8abdff;
+      --shadow-light: #ffffff;
+      --shadow-dark: #babecc;
+      --code-bg: #f0f3f9;
+      --section-bg: #e6eaf0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      opacity: 0;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .vision {
+      font-size: 1.2rem;
+      font-style: italic;
+      margin-bottom: 2rem;
+      border-left: 4px solid var(--accent-color);
+      padding-left: 1rem;
+    }
+
+    .card {
+      border-radius: 15px;
+      background: var(--bg-color);
+      box-shadow: 8px 8px 16px var(--shadow-dark), 
+                 -8px -8px 16px var(--shadow-light);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      transition: transform 0.3s ease;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    h2 {
+      color: var(--accent-color);
+      border-bottom: 2px solid var(--shadow-dark);
+      padding-bottom: 0.5rem;
+      margin-top: 0;
+    }
+
+    h3 {
+      color: var(--accent-color);
+      margin-top: 1.5rem;
+    }
+
+    .emoji-title {
+      display: flex;
+      align-items: center;
+    }
+
+    .emoji-title span {
+      font-size: 1.8rem;
+      margin-right: 0.5rem;
+    }
+
+    code {
+      background-color: var(--code-bg);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-family: 'Consolas', 'Monaco', monospace;
+    }
+
+    pre {
+      background-color: var(--code-bg);
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), 
+                  inset -2px -2px 5px var(--shadow-light);
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 1rem;
+    }
+
+    .tab {
+      padding: 0.8rem 1.5rem;
+      background: var(--bg-color);
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      box-shadow: 4px -2px 8px var(--shadow-dark), 
+                 -4px -2px 8px var(--shadow-light);
+      margin-right: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .tab.active {
+      background: var(--section-bg);
+      font-weight: bold;
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), 
+                  inset -2px -2px 5px var(--shadow-light);
+    }
+
+    .tab-content {
+      display: none;
+      background: var(--section-bg);
+      padding: 1.5rem;
+      border-radius: 0 8px 8px 8px;
+      box-shadow: inset 2px 2px 5px var(--shadow-dark), 
+                  inset -2px -2px 5px var(--shadow-light);
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    th, td {
+      padding: 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid var(--shadow-dark);
+    }
+
+    th {
+      background-color: var(--code-bg);
+    }
+
+    .diagram {
+      background: var(--section-bg);
+      padding: 1.5rem;
+      border-radius: 8px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      white-space: pre;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    .timeline {
+      position: relative;
+      margin: 2rem 0;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 1rem;
+      height: 100%;
+      width: 2px;
+      background: var(--accent-color);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 3rem;
+      margin-bottom: 2rem;
+      opacity: 0;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.5rem;
+      width: 1rem;
+      height: 1rem;
+      background: var(--accent-color);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px var(--bg-color);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 1rem;
+      opacity: 0;
+    }
+
+    .vs-table {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .vs-card {
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 4px 4px 8px var(--shadow-dark), 
+                 -4px -4px 8px var(--shadow-light);
+    }
+
+    .vs-card h3 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    .tag {
+      padding: 0.4rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      background: var(--accent-light);
+      color: white;
+      display: inline-block;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      .card {
+        padding: 1.5rem;
+      }
+      .vs-table {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Exliar VFIO Automation Framework</h1>
+      <p class="vision">Project Vision: A modular, extensible system for automating VFIO GPU passthrough and VM management with Discord integration</p>
+    </header>
+
+    <div class="card" id="overview">
+      <div class="emoji-title">
+        <span>📋</span>
+        <h2>Overview</h2>
+      </div>
+      <p>Exliar VFIO Automation provides a complete framework for automating the complex process of GPU passthrough on Linux systems. Built with extensibility in mind, it leverages a plugin architecture to seamlessly manage every aspect of VFIO setup and virtual machine orchestration.</p>
+    </div>
+
+    <div class="card" id="foundation">
+      <div class="emoji-title">
+        <span>🏗️</span>
+        <h2>Core Foundation</h2>
+      </div>
+      <p>The foundation consists of three primary components:</p>
+      
+      <h3>1. VFIO Automation Core</h3>
+      <ul>
+        <li>PCI device enumeration and filtering</li>
+        <li>Driver binding/unbinding (host → vfio-pci)</li>
+        <li>Kernel module management</li>
+        <li>IOMMU group validation</li>
+        <li>Privilege escalation handling</li>
+      </ul>
+
+      <h3>2. Discord Integration (Hotpluggable)</h3>
+      <ul>
+        <li>Discord RPC implementation for core foundation</li>
+        <li>Switchable between RPC/Bot at runtime</li>
+        <li>Common interface for both implementations</li>
+        <li>Status updates and notifications</li>
+      </ul>
+      
+      <h3>3. Terminal User Interface</h3>
+      <ul>
+        <li>Lightweight, SSH-friendly interface</li>
+        <li>Resource-efficient (important for VFIO usage)</li>
+        <li>Keyboard-driven controls</li>
+        <li>Live system monitoring</li>
+      </ul>
+    </div>
+
+    <div class="card" id="discord-hotplug">
+      <div class="emoji-title">
+        <span>🔌</span>
+        <h2>Hotpluggable Discord Integration</h2>
+      </div>
+      
+      <p>Exliar provides a flexible Discord integration design that allows switching between RPC and Bot implementations at runtime:</p>
+      
+      <pre><code>// Discord trait that abstracts over different implementations
+pub trait DiscordProvider: Send + Sync {
+    fn set_status(&self, status: &str) -> Result<()>;
+    fn set_activity(&self, details: &str, state: Option<&str>) -> Result<()>;
+    fn clear_activity(&self) -> Result<()>;
+    // Shared methods...
+}
+
+// RPC implementation for personal use
+pub struct DiscordRpc {
+    client: DiscordIpcClient,
+}
+
+// Bot implementation for multi-user/remote control
+pub struct DiscordBot {
+    client: SerenityClient,
+}</code></pre>
+      
+      <p>For the core foundation, we start with the Discord RPC implementation but allow easy transition to Bot functionality later:</p>
+      
+      <pre><code>// Configurable provider in exliar.toml
+[discord]
+provider = "rpc"  # or "bot"
+app_id = "123456789012345678"
+
+// Selected at runtime
+let discord: Box&lt;dyn DiscordProvider&gt; = match config.discord.provider.as_str() {
+    "rpc" => Box::new(DiscordRpc::new(&config.discord.app_id)?),
+    "bot" => Box::new(DiscordBot::new(&config.discord.token)?),
+    _ => return Err("Invalid Discord provider type".into()),
+};</code></pre>
+    </div>
+
+    <div class="card" id="ui-selection">
+      <div class="emoji-title">
+        <span>💻</span>
+        <h2>UI Approach: Terminal UI</h2>
+      </div>
+      
+      <p>After considering the complexity of GTK and Qt, we've selected a Terminal User Interface (TUI) approach using the Ratatui (formerly tui-rs) library:</p>
+      
+      <div class="vs-table">
+        <div class="vs-card">
+          <h3>Terminal UI</h3>
+          <div class="tag-container">
+            <span class="tag">Selected ✅</span>
+            <span class="tag">Lightweight</span>
+            <span class="tag">SSH-friendly</span>
+          </div>
+          <ul>
+            <li>Works over SSH for remote management</li>
+            <li>Doesn't compete with VM for GPU resources</li>
+            <li>Fast, responsive, keyboard-driven</li>
+            <li>Simpler development with Ratatui library</li>
+            <li>Compatible with systemd services</li>
+          </ul>
+        </div>
+        
+        <div class="vs-card">
+          <h3>GUI Options</h3>
+          <div class="tag-container">
+            <span class="tag">Future Extension</span>
+          </div>
+          <ul>
+            <li>Web interface as future extension</li>
+            <li>Avoid complex GTK/Qt dependencies</li>
+            <li>Optional Tauri for standalone app later</li>
+            <li>WebSocket server for remote control</li>
+            <li>Mobile-friendly interface possible</li>
+          </ul>
+        </div>
+      </div>
+      
+      <h3>TUI Implementation with Ratatui</h3>
+      <pre><code>use ratatui::{
+    backend::CrosstermBackend,
+    widgets::{Block, Borders, Paragraph},
+    Terminal,
+};
+
+fn main() -> Result<(), Box&lt;dyn std::error::Error&gt;> {
+    // Terminal setup
+    let mut terminal = Terminal::new(CrosstermBackend::new(std::io::stdout()))?;
+    terminal.clear()?;
+
+    // Application loop
+    loop {
+        terminal.draw(|f| {
+            let size = f.size();
+            
+            // VM Status widget
+            let vm_status = Paragraph::new("VM Status: Running")
+                .block(Block::default().title("VFIO Manager").borders(Borders::ALL));
+                
+            f.render_widget(vm_status, size);
+        })?;
+        
+        // Handle input, etc.
+    }
+}</code></pre>
+    </div>
+
+    <div class="card" id="plugin-architecture">
+      <div class="emoji-title">
+        <span>🧩</span>
+        <h2>Plugin Architecture</h2>
+      </div>
+      <p>Exliar uses a staged plugin system with clear dependency management:</p>
+      
+      <div class="diagram">
+┌────────────────┐     ┌────────────────┐     ┌────────────────┐
+│  STAGE 1       │     │  STAGE 2       │     │  STAGE 3       │
+│  System Prep   │ ──▶ │  VFIO Setup    │ ──▶ │  VM Management │
+└────────────────┘     └────────────────┘     └────────────────┘
+       │                      │                      │
+       ▼                      ▼                      ▼
+┌────────────┐        ┌────────────┐        ┌────────────┐
+│ PciScanner │        │ VfioManager│        │ QemuManager│
+└────────────┘        └────────────┘        └────────────┘
+       │                      │                      │
+       │                      │                      │
+       ▼                      ▼                      ▼
+┌────────────┐        ┌────────────┐        ┌────────────┐
+│ SysInfo    │        │ ModProbe   │        │ Snapshots  │
+└────────────┘        └────────────┘        └────────────┘
+      </div>
+      
+      <p>Each plugin is self-contained but can depend on other plugins, creating a clean dependency graph.</p>
+    </div>
+
+    <div class="card" id="discord-integration">
+      <div class="emoji-title">
+        <span>🔊</span>
+        <h2>Discord Integration: Core RPC Implementation</h2>
+      </div>
+      
+      <p>The core foundation will use Discord RPC for simplicity and personal use cases:</p>
+      
+      <h3>Discord RPC Implementation</h3>
+      <p>For personal setups, the RPC approach offers:</p>
+      <ul>
+        <li><strong>Rich Presence</strong> - Shows VM status directly in your Discord profile</li>
+        <li><strong>Custom Imagery</strong> - Display VM OS logos, GPU icons, and status indicators</li>
+        <li><strong>Buttons</strong> - Add links to your stream or documentation</li>
+        <li><strong>Privacy Control</strong> - Show/hide specific details about your system</li>
+        <li><strong>Low Overhead</strong> - Minimal resource impact on host system</li>
+      </ul>
+      
+      <pre><code>// Example Discord RPC integration
+use discord_rich_presence::{activity, DiscordIpc, DiscordIpcClient};
+
+fn update_discord_status(vm_name: &str, gpu_model: &str, state: VmState) {
+    let mut client = DiscordIpcClient::new("1234567890123456")?;
+    client.connect()?;
+    
+    let (details, state_text) = match state {
+        VmState::Starting => ("Starting VM...", "Initializing hardware"),
+        VmState::Running => (format!("Running {}", vm_name), format!("GPU: {}", gpu_model)),
+        VmState::Paused => (format!("{} paused", vm_name), "VM suspended"),
+        // ...
+    };
+    
+    let activity = activity::Activity::new()
+        .details(&details)
+        .state(&state_text)
+        .assets(
+            activity::Assets::new()
+                .large_image("vm_icon")
+                .large_text("Exliar VFIO")
+        );
+        
+    client.set_activity(activity)?;
+}</code></pre>
+    </div>
+    
+    <div class="card" id="leveraging-existing">
+      <div class="emoji-title">
+        <span>🛠️</span>
+        <h2>Leveraging Existing Work: vfio-auto</h2>
+      </div>
+      <p>The project will build on learnings from the existing <code>vfio-auto</code> project:</p>
+      
+      <ul>
+        <li><strong>Reference Architecture</strong> - Use existing tested approaches for VFIO binding</li>
+        <li><strong>Proven Workflows</strong> - Import successful VM lifecycle management patterns</li>
+        <li><strong>Pain Points</strong> - Address identified limitations through plugin architecture</li>
+        <li><strong>Migration Path</strong> - Enable gradual transition from vfio-auto to Exliar</li>
+      </ul>
+      
+      <p>Key improvements over vfio-auto:</p>
+      <ul>
+        <li>Plugin-based extensibility vs monolithic design</li>
+        <li>Rust safety guarantees vs shell script error handling</li>
+        <li>Structured configuration vs ad-hoc parameters</li>
+        <li>Discord integration for remote monitoring/control</li>
+        <li>TUI interface for better management</li>
+      </ul>
+    </div>
+    
+    <div class="card" id="language">
+      <div class="emoji-title">
+        <span>🛠️</span>
+        <h2>Language Selection: Rust</h2>
+      </div>
+      <p>Rust is the optimal choice for Exliar due to:</p>
+      
+      <ul>
+        <li><strong>Safety</strong> - Memory safety without garbage collection</li>
+        <li><strong>Performance</strong> - Near-C speeds with higher-level abstractions</li>
+        <li><strong>FFI</strong> - Seamless integration with C libraries and kernel interfaces</li>
+        <li><strong>Async</strong> - First-class async/await for concurrent operations</li>
+        <li><strong>Ecosystem</strong> - Rich crates for system programming and Discord integration</li>
+        <li><strong>Cross-platform</strong> - Supports all major Linux distributions</li>
+      </ul>
+      
+      <h3>Key Libraries</h3>
+      <div class="tag-container">
+        <span class="tag">discord-rich-presence</span>
+        <span class="tag">serenity</span>
+        <span class="tag">ratatui</span>
+        <span class="tag">tokio</span>
+        <span class="tag">serde</span>
+        <span class="tag">anyhow</span>
+        <span class="tag">clap</span>
+      </div>
+    </div>
+    
+    <div class="card" id="implementation">
+      <div class="emoji-title">
+        <span>⚙️</span>
+        <h2>Implementation Roadmap</h2>
+      </div>
+      
+      <div class="timeline">
+        <div class="timeline-item">
+          <h3>Core Foundation (Week 1-2)</h3>
+          <ul>
+            <li>Plugin system architecture</li>
+            <li>PCI scanning module</li>
+            <li>VFIO binding module</li>
+            <li>Discord RPC integration</li>
+            <li>Basic TUI interface</li>
+          </ul>
+        </div>
+        
+        <div class="timeline-item">
+          <h3>VM Management (Week 3-4)</h3>
+          <ul>
+            <li>QEMU/KVM wrapper</li>
+            <li>VM template system</li>
+            <li>Storage management</li>
+            <li>VM lifecycle hooks</li>
+          </ul>
+        </div>
+        
+        <div class="timeline-item">
+          <h3>Advanced Features (Week 5-6)</h3>
+          <ul>
+            <li>Performance monitoring</li>
+            <li>USB passthrough manager</li>
+            <li>Looking Glass integration</li>
+            <li>Optional Discord Bot integration</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card" id="getting-started">
+      <div class="emoji-title">
+        <span>🚀</span>
+        <h2>Getting Started</h2>
+      </div>
+      
+      <pre><code># Clone the repository
+git clone https://github.com/kunihir0/exliar-vfio.git
+
+# Build the project
+cd exliar-vfio
+cargo build --release
+
+# Configure your setup
+cp config.example.toml config.toml
+$EDITOR config.toml
+
+# Run the system
+./target/release/exliar-vfio</code></pre>
+    </div>
+    
+    <div class="card" id="future">
+      <div class="emoji-title">
+        <span>🔮</span>
+        <h2>Future Extensions</h2>
+      </div>
+      
+      <ul>
+        <li><strong>Remote streaming</strong> - Add Moonlight/Parsec automation</li>
+        <li><strong>Web interface</strong> - Optional web UI for remote control</li>
+        <li><strong>Cloud sync</strong> - Synchronize configs across machines</li>
+        <li><strong>Multi-user</strong> - Support for household shared system</li>
+        <li><strong>Home automation</strong> - Integrate with Home Assistant</li>
+      </ul>
+    </div>
+    
+    <div class="footer">
+      <p>Generated with Exliar Project Planner - 2025-04-21 07:45:12 UTC</p>
+      <p>User: kunihir0</p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <script>
+    // Function to switch tabs
+    function switchTab(tabId) {
+      // Hide all tabs
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(tab => tab.classList.remove('active'));
+      
+      // Show selected tab
+      document.getElementById(tabId).classList.add('active');
+      
+      // Update tab buttons
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+    }
+    
+    // Animate elements when they come into view
+    const animateOnScroll = () => {
+      const cards = document.querySelectorAll('.card, .timeline-item, header, .footer');
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            anime({
+              targets: entry.target,
+              opacity: [0, 1],
+              translateY: [20, 0],
+              easing: 'easeOutExpo',
+              duration: 800,
+              delay: 100
+            });
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      cards.forEach(card => {
+        observer.observe(card);
+      });
+    };
+    
+    // Initial animations
+    document.addEventListener('DOMContentLoaded', () => {
+      // Animate header
+      anime({
+        targets: 'header',
+        opacity: [0, 1],
+        translateY: [-20, 0],
+        easing: 'easeOutExpo',
+        duration: 1000,
+        delay: 300
+      });
+      
+      // Animate cards with delay
+      anime({
+        targets: '.card',
+        opacity: [0, 1],
+        translateY: [20, 0],
+        easing: 'easeOutExpo',
+        duration: 800,
+        delay: anime.stagger(200, {start: 500})
+      });
+      
+      // Animate timeline items
+      anime({
+        targets: '.timeline-item',
+        opacity: [0, 1],
+        translateX: [-20, 0],
+        easing: 'easeOutExpo',
+        duration: 800,
+        delay: anime.stagger(200, {start: 1200})
+      });
+      
+      // Animate footer
+      anime({
+        targets: '.footer',
+        opacity: [0, 1],
+        easing: 'easeOutExpo',
+        duration: 800,
+        delay: 1800
+      });
+      
+      // Neon pulse effect on title
+      anime({
+        targets: 'h1',
+        textShadow: [
+          '0 0 5px rgba(109, 93, 252, 0)',
+          '0 0 20px rgba(109, 93, 252, 0.8)',
+          '0 0 5px rgba(109, 93, 252, 0)'
+        ],
+        easing: 'easeInOutSine',
+        duration: 3000,
+        delay: 1000,
+        loop: true
+      });
+      
+      // Initialize scroll animations
+      animateOnScroll();
+    });
+  </script>
+</body>
+</html>
