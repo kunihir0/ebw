@@ -10,7 +10,7 @@ use ratatui::{
 
 // Use our defined PastelColor enum and Theme
 use crate::ui::colors::{PastelColor, Theme};
-use crate::core::system::DistroFamily;
+use crate::core::system::DistroFamily; // Re-add the import
 use super::state::AppState;
 
 /// Convert our custom PastelColor to ratatui Color
@@ -218,7 +218,18 @@ fn render_system_info(f: &mut Frame, app: &AppState, area: Rect, theme: &Theme) 
         // Add distribution info if available
         if let Some(ref distro) = system_info.distribution {
              let family_str = match &distro.family {
-                 Some(family) => format!(" ({:?}-based)", family), // Display family
+                 Some(family) => {
+                     // Explicitly match on DistroFamily variants to mark the type as used
+                     let family_name = match family {
+                         DistroFamily::Arch => "Arch",
+                         DistroFamily::Debian => "Debian",
+                         DistroFamily::Fedora => "Fedora",
+                         DistroFamily::Suse => "Suse",
+                         DistroFamily::Gentoo => "Gentoo",
+                         DistroFamily::Other(name) => name.as_str(), // Use the name from Other variant
+                     };
+                     format!(" ({}-based)", family_name) // Use the matched name
+                 },
                  None => String::new(),
              };
              info_lines.push(Line::from(vec![
